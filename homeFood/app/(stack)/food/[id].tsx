@@ -99,7 +99,8 @@ function InfoRow({
 }
 
 export default function FoodDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
@@ -111,6 +112,7 @@ export default function FoodDetailScreen() {
     data: food,
     isLoading,
     isError,
+    refetch,
   } = useGetFoodByIdQuery(id ?? "", { skip: !id });
   const { data: similarFoods = [] } = useGetFoodsQuery(
     food ? { category: food.category, limit: 4 } : undefined,
@@ -144,11 +146,10 @@ export default function FoodDetailScreen() {
     if (food) setQty(food.id, Math.max(0, qty - 1));
   };
 
-  const openSimilar = (similarId: string) =>
-    router.push({
-      pathname: "/(stack)/food/[id]" as never,
-      params: { id: similarId },
-    });
+  const browseDishes = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)");
+  };
 
   if (isLoading) {
     return (
@@ -174,14 +175,23 @@ export default function FoodDetailScreen() {
               color={colors.primary}
             />
           }
-          title="Dish not found"
-          description="This dish may have been removed by the chef. Explore other homemade meals instead."
+          title="Couldn't load this dish"
+          description="Check your connection and try again. The dish may have been removed by the chef."
           action={
-            <PillButton
-              title="Browse dishes"
-              onPress={() => router.back()}
-              variant="primary"
-            />
+            <View style={tw`flex-row flex-wrap justify-center gap-2`}>
+              {id && (
+                <PillButton
+                  title="Try again"
+                  onPress={() => void refetch()}
+                  variant="primary"
+                />
+              )}
+              <PillButton
+                title="Browse dishes"
+                onPress={browseDishes}
+                variant="secondary"
+              />
+            </View>
           }
         />
       </View>
@@ -229,7 +239,7 @@ export default function FoodDetailScreen() {
                 source={{ uri: food.image }}
                 contentFit="cover"
                 transition={250}
-                style={tw`h-full w-full`}
+                style={tw`h-52 w-full`}
               />
               {soldOut && (
                 <View
@@ -421,7 +431,9 @@ export default function FoodDetailScreen() {
                   />
                 }
               >
-                NID-verified home kitchen
+                {food.sellerVerified
+                  ? "NID-verified home kitchen"
+                  : "Home kitchen"}
               </InfoRow>
             </View>
 
@@ -542,11 +554,7 @@ export default function FoodDetailScreen() {
                   showsHorizontalScrollIndicator={false}
                   ItemSeparatorComponent={() => <View style={tw`w-3`} />}
                   renderItem={({ item }) => (
-                    <TouchableOpacity
-                      activeOpacity={0.85}
-                      onPress={() => openSimilar(item.id)}
-                      style={tw`w-44`}
-                    >
+                    <View style={tw`w-44`}>
                       <FoodCard
                         food={item}
                         isFavorite={favoriteIds.includes(item.id)}
@@ -554,7 +562,7 @@ export default function FoodDetailScreen() {
                           dispatch(toggleFavorite(fid))
                         }
                       />
-                    </TouchableOpacity>
+                    </View>
                   )}
                 />
               </View>

@@ -23,3 +23,7 @@ SKILL
 ## Login credential
 email:    seller@homefood.test /testuser@example.com
 password: seller123 / 123456
+
+-admin pannel
+Email: admin@gmail.com
+Password: aWgp4LZdiKD42Be63hw4qR0gKsqFGqQdA1!

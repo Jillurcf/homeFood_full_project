@@ -11,34 +11,33 @@ import { useGetFoodsQuery } from "@/src/api/foods";
 import tw from "@/src/lib/tailwind";
 import { useAppSelector } from "@/src/store/hooks";
 import { api } from "@/src/api/clients";
+import type { Food } from "@/src/types/food";
 
 export default function CartScreen() {
   const router = useRouter();
-  const { items, totalItems, qtyOf, setQty, remove, clear } = useCart();
-  const { data, isLoading } = useGetFoodsQuery({ limit: 100 });
+  const { items, totalItems, setQty, remove, clear } = useCart();
+  const {
+    data: foods = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetFoodsQuery({ limit: 50 });
   const token = useAppSelector((s) => s.auth.token);
 
   const foodsById = useMemo(() => {
-    const map = new Map<string, any>();
-    (data?.foods || []).forEach((f: any) => map.set(f.id, f));
+    const map = new Map<string, Food>();
+    foods.forEach((food) => map.set(food.id, food));
     return map;
-  }, [data]);
+  }, [foods]);
 
   const cartLines = useMemo(() => {
-    return items
-      .map((item) => {
-        const food = foodsById.get(item.foodId);
-        if (!food) return null;
-        const soldOut = food.availability === "soldOut";
-        const lineTotal = food.price * item.qty;
-        return { item, food, soldOut, lineTotal };
-      })
-      .filter(Boolean) as Array<{
-      item: { foodId: string; qty: number };
-      food: any;
-      soldOut: boolean;
-      lineTotal: number;
-    }>;
+    return items.flatMap((item) => {
+      const food = foodsById.get(item.foodId);
+      if (!food) return [];
+      const soldOut = food.availability === "soldOut";
+      const lineTotal = food.price * item.qty;
+      return [{ item, food, soldOut, lineTotal }];
+    });
   }, [items, foodsById]);
 
   const subtotal = useMemo(
@@ -73,16 +72,15 @@ export default function CartScreen() {
         deliveryAddress: {
           label: "Home",
           addressLine: "TBA",
-          area: line.food.area || "",
+          area: cartLines[0].food.area || "",
         },
         paymentMethod: "cod",
       };
       // restaurantId not strictly needed if backend derives from food; but current backend requires it
       // include a placeholder to be compatible
       const restaurantId =
-        cartLines[0]?.food?.seller?.name
-          ? cartLines[0]?.food?.seller?.name.replace(/\s+/g, "-").toLowerCase()
-          : "homefood";
+        cartLines[0].food.seller.replace(/\s+/g, "-").toLowerCase() ||
+        "homefood";
       const body = {
         restaurantId,
         ...payload,
@@ -140,6 +138,25 @@ export default function CartScreen() {
           </Pressable>
         </View>
 
+        {isLoading && cartLines.length === 0 ? (
+          <Text style={tw`py-8 text-center text-sm text-textMuted`}>
+            Loading your cart items...
+          </Text>
+        ) : null}
+        {isError && cartLines.length === 0 ? (
+          <View style={tw`items-center gap-2 py-8`}>
+            <Text style={tw`text-center text-sm text-textMuted`}>
+              Couldn&apos;t load your cart items. Check your connection and try
+              again.
+            </Text>
+            <PillButton
+              title="Try again"
+              onPress={() => void refetch()}
+              variant="secondary"
+            />
+          </View>
+        ) : null}
+
         {cartLines.map((line) => (
           <Card
             key={line.item.foodId}
@@ -157,7 +174,7 @@ export default function CartScreen() {
               <View style={tw`mt-0.5 flex-row items-center gap-1`}>
                 {line.food.sellerVerified ? <VerifiedBadge /> : null}
                 <Text style={tw`text-xs text-textMuted`} numberOfLines={1}>
-                  {line.food.seller?.name || "Seller"}
+                  {line.food.seller || "Seller"}
                 </Text>
               </View>
               <Text style={tw`mt-1 text-sm font-semibold text-primary`}>
