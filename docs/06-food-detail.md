@@ -28,7 +28,7 @@
 
 ## Done when
 
-- [ ] Detail loads by id from API; skeleton while loading
-- [ ] Add to cart adds qty to cart store (checkout is M07)
-- [ ] Reviews render; similar dishes navigate to their detail
-- [ ] `npm run lint` passes
+- [x] Detail loads by id from API; skeleton while loading
+- [x] Add to cart adds qty to cart store (checkout is M07)
+- [x] Reviews render; similar dishes navigate to their detail
+- [x] `npm run lint` passes

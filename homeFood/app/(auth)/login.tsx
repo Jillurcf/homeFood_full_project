@@ -1,10 +1,10 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/src/store";
 import { clearError, loginThunk } from "@/src/store/authSlice";
-import { AuthShell, Input, PillButton } from "@/src/components/ui";
+import { AuthShell, PillButton } from "@/src/components/ui";
 import tw from "@/src/lib/tailwind";
 
 const Login = () => {
@@ -73,33 +73,44 @@ const Login = () => {
         </View>
       ) : null}
 
+<TextInput  />
       <View style={tw`gap-3`}>
-        <Input
-          label="Email"
-          placeholder="you@example.com"
-          value={email}
-          onChangeText={(text) => {
-            setEmail(text);
-            setFormError(null);
-          }}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          textContentType="emailAddress"
-        />
+        <View>
+          <Text style={tw`mb-1.5 text-sm font-medium text-text`}>Email</Text>
+          <View style={tw`flex-row items-center rounded-xl border border-borderStrong bg-card px-3.5 py-2.5`}>
+            <TextInput
+              placeholder="you@example.com"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setFormError(null);
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              textContentType="emailAddress"
+              placeholderTextColor={tw.color("text-faint")}
+              style={tw`flex-1 text-sm text-text font-body`}
+            />
+          </View>
+        </View>
 
-        <Input
-          label="Password"
-          placeholder="Your password"
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text);
-            setFormError(null);
-          }}
-          secureTextEntry={!showPassword}
-          autoCapitalize="none"
-          textContentType="password"
-          rightAccessory={
+        <View>
+          <Text style={tw`mb-1.5 text-sm font-medium text-text`}>Password</Text>
+          <View style={tw`flex-row items-center rounded-xl border border-borderStrong bg-card px-3.5`}>
+            <TextInput
+              placeholder="Your password"
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setFormError(null);
+              }}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              textContentType="password"
+              placeholderTextColor={tw.color("text-faint")}
+              style={tw`flex-1 py-2.5 text-sm text-text font-body`}
+            />
             <TouchableOpacity
               onPress={() => setShowPassword((value) => !value)}
               accessibilityRole="button"
@@ -109,8 +120,8 @@ const Login = () => {
                 {showPassword ? "Hide" : "Show"}
               </Text>
             </TouchableOpacity>
-          }
-        />
+          </View>
+        </View>
       </View>
 
       <PillButton

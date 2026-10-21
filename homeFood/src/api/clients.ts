@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8080/api";
+const BASE_URL = "http://192.168.0.4:8080/api";
 
 interface RequestOptions {
   method?: string;

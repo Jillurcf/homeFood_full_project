@@ -19,3 +19,7 @@ plan
 create a implentation plan for .opencode/specs/01 login and signup 
 
 SKILL
+
+## Login credential
+email:    seller@homefood.test /testuser@example.com
+password: seller123 / 123456

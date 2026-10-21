@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import * as SecureStore from "expo-secure-store";
 import { api } from "../api/clients";
 
-const TOKEN_KEY = "auth_token";
+export const TOKEN_KEY = "auth_token";
 
 interface User {
   id: string;
